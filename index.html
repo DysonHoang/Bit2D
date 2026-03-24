@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIT 2D - Fenwick Tree 2D</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c0c1d 0%, #1a1a3e 50%, #0c0c1d 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            background: linear-gradient(90deg, #00d2ff, #7b2ff7, #ff6ac1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-shadow: none;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            font-size: 1.1em;
+            margin-bottom: 40px;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 40px;
+            position: sticky;
+            top: 0;
+            background: rgba(12, 12, 29, 0.95);
+            padding: 15px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .nav a {
+            color: #aaa;
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+
+        .nav a:hover, .nav a.active {
+            color: #fff;
+            border-color: #7b2ff7;
+            background: rgba(123, 47, 247, 0.2);
+        }
+
+        /* Section */
+        .section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+
+        .section:hover {
+            border-color: rgba(123, 47, 247, 0.3);
+            box-shadow: 0 0 30px rgba(123, 47, 247, 0.1);
+        }
+
+        h2 {
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(123, 47, 247, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 .num {
+            background: linear-gradient(135deg, #7b2ff7, #00d2ff);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            flex-shrink: 0;
+        }
+
+        h3 {
+            color: #00d2ff;
+            margin: 20px 0 10px;
+            font-size: 1.15em;
+        }
+
+        p {
+            line-height: 1.8;
+            margin-bottom: 12px;
+            color: #ccc;
+        }
+
+        .highlight {
+            color: #ff6ac1;
+            font-weight: bold;
+        }
+
+        .keyword {
+            color: #00d2ff;
+            font-weight: bold;
+        }
+
+        /* Code block */
+        .code-wrapper {
+            position: relative;
+            margin: 15px 0;
+        }
+
+        .code-label {
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: #7b2ff7;
+            color: #fff;
+            padding: 2px 12px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        pre {
+            background: #0d0d1a;
+            border: 1px solid #2a2a4a;
+            border-radius: 12px;
+            padding: 25px 20px 15px;
+            overflow-x: auto;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        code {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            color: #e0e0e0;
+        }
+
+        .code-inline {
+            background: rgba(123, 47, 247, 0.2);
+            color: #d4a0ff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9em;
+        }
+
+        /* Syntax highlighting */
+        .kw { color: #c678dd; }
+        .fn { color: #61afef; }
+        .num-code { color: #d19a66; }
+        .cm { color: #5c6370; font-style: italic; }
+        .str { color: #98c379; }
+        .type { color: #e5c07b; }
+        .op { color: #56b6c2; }
+
+        /* Matrix visualization */
+        .matrix-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .matrix {
+            border-collapse: collapse;
+        }
+
+        .matrix td {
+            width: 60px;
+            height: 50px;
+            text-align: center;
+            border: 1px solid #333;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+
+        .matrix td.header {
+            background: rgba(123, 47, 247, 0.2);
+            color: #d4a0ff;
+            font-weight: bold;
+            border: 1px solid #555;
+        }
+
+        .matrix td.cell {
+            background: rgba(0, 210, 255, 0.05);
+        }
+
+        .matrix td.cell:hover {
+            background: rgba(123, 47, 247, 0.3);
+            transform: scale(1.05);
+        }
+
+        .matrix td.highlight-cell {
+            background: rgba(255, 106, 193, 0.3);
+            color: #ff6ac1;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        .matrix td.query-cell {
+            background: rgba(0, 210, 255, 0.2);
+            border: 2px solid #00d2ff;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: inset 0 0 5px rgba(255, 106, 193, 0.3); }
+            50% { box-shadow: inset 0 0 15px rgba(255, 106, 193, 0.5); }
+        }
+
+        /* Diagram boxes */
+        .diagram {
+            background: #0d0d1a;
+            border: 1px solid #2a2a4a;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85em;
+            line-height: 1.8;
+            overflow-x: auto;
+            text-align: center;
+        }
+
+        /* Info boxes */
+        .info-box {
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin: 15px 0;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .info-box .icon {
+            font-size: 1.5em;
+            flex-shrink: 0;
+        }
+
+        .info-box.tip {
+            background: rgba(0, 210, 255, 0.08);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+        }
+
+        .info-box.warning {
+            background: rgba(255, 193, 7, 0.08);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .info-box.important {
+            background: rgba(255, 106, 193, 0.08);
+            border: 1px solid rgba(255, 106, 193, 0.3);
+        }
+
+        /* Comparison table */
+        .comp-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .comp-table th {
+            background: rgba(123, 47, 247, 0.3);
+            color: #fff;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #444;
+        }
+
+        .comp-table td {
+            padding: 10px 12px;
+            border: 1px solid #333;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .comp-table tr:hover td {
+            background: rgba(123, 47, 247, 0.1);
+        }
+
+        /* Complexity badge */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .badge.good {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.4);
+        }
+
+        .badge.mid {
+            background: rgba(241, 196, 15, 0.2);
+            color: #f1c40f;
+            border: 1px solid rgba(241, 196, 15, 0.4);
+        }
+
+        /* Step flow */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .step {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            border-left: 3px solid #7b2ff7;
+            transition: all 0.3s;
+        }
+
+        .step:hover {
+            background: rgba(123, 47, 247, 0.08);
+        }
+
+        .step-num {
+            background: linear-gradient(135deg, #7b2ff7, #00d2ff);
+            color: #fff;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        /* Inclusion-exclusion visual */
+        .ie-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .ie-box {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .ie-plus {
+            background: rgba(46, 204, 113, 0.15);
+            border: 1px solid rgba(46, 204, 113, 0.4);
+            color: #2ecc71;
+        }
+
+        .ie-minus {
+            background: rgba(231, 76, 60, 0.15);
+            border: 1px solid rgba(231, 76, 60, 0.4);
+            color: #e74c3c;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 0;
+        }
+
+        .tab-btn {
+            padding: 8px 20px;
+            border: 1px solid #333;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            background: rgba(255, 255, 255, 0.03);
+            color: #888;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: #0d0d1a;
+            color: #7b2ff7;
+            border-color: #7b2ff7;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Animation for visual */
+        .visual-container {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .arrow {
+            color: #ff6ac1;
+            font-weight: bold;
+        }
+
+        /* Lowbit explanation */
+        .lowbit-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .lowbit-table th, .lowbit-table td {
+            padding: 8px 12px;
+            border: 1px solid #333;
+            text-align: center;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85em;
+        }
+
+        .lowbit-table th {
+            background: rgba(123, 47, 247, 0.2);
+            color: #d4a0ff;
+        }
+
+        .lowbit-table .bit-highlight {
+            color: #ff6ac1;
+            font-weight: bold;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a3e; }
+        ::-webkit-scrollbar-thumb { background: #7b2ff7; border-radius: 4px; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .section { padding: 20px; }
+            .ie-grid { grid-template-columns: 1fr; }
+            .nav { position: static; }
+        }
+
+        /* Trace animation */
+        .trace-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 6px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85em;
+            background: rgba(255,255,255,0.02);
+            opacity: 0;
+            animation: fadeInLeft 0.5s forwards;
+        }
+
+        .trace-row:nth-child(1) { animation-delay: 0.1s; }
+        .trace-row:nth-child(2) { animation-delay: 0.3s; }
+        .trace-row:nth-child(3) { animation-delay: 0.5s; }
+        .trace-row:nth-child(4) { animation-delay: 0.7s; }
+        .trace-row:nth-child(5) { animation-delay: 0.9s; }
+        .trace-row:nth-child(6) { animation-delay: 1.1s; }
+        .trace-row:nth-child(7) { animation-delay: 1.3s; }
+        .trace-row:nth-child(8) { animation-delay: 1.5s; }
+
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .trace-highlight {
+            background: rgba(123, 47, 247, 0.15);
+            border-left: 3px solid #7b2ff7;
+        }
+
+        /* Summary box */
+        .summary-box {
+            background: linear-gradient(135deg, rgba(123, 47, 247, 0.1), rgba(0, 210, 255, 0.1));
+            border: 1px solid rgba(123, 47, 247, 0.3);
+            border-radius: 16px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .summary-box h3 {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .summary-item {
+            padding: 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-item .label {
+            color: #888;
+            font-size: 0.8em;
+            margin-bottom: 5px;
+        }
+
+        .summary-item .value {
+            color: #00d2ff;
+            font-family: 'Fira Code', monospace;
+            font-weight: bold;
+        }
+
+        /* Interactive demo */
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+            align-items: center;
+        }
+
+        .demo-controls input {
+            background: #1a1a3e;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            width: 70px;
+            font-family: 'Fira Code', monospace;
+            text-align: center;
+        }
+
+        .demo-controls button {
+            background: linear-gradient(135deg, #7b2ff7, #00d2ff);
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .demo-controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(123, 47, 247, 0.4);
+        }
+
+        .demo-controls label {
+            color: #888;
+            font-size: 0.85em;
+        }
+
+        #demo-matrix td {
+            transition: all 0.5s;
+        }
+
+        #demo-matrix td.flash {
+            animation: flashCell 0.8s;
+        }
+
+        @keyframes flashCell {
+            0% { background: rgba(255, 106, 193, 0.6); }
+            100% { background: rgba(0, 210, 255, 0.05); }
+        }
+
+        #demo-log {
+            background: #0d0d1a;
+            border: 1px solid #2a2a4a;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8em;
+            line-height: 1.6;
+        }
+
+        .log-entry {
+            padding: 2px 0;
+        }
+
+        .log-update { color: #ff6ac1; }
+        .log-query { color: #00d2ff; }
+        .log-result { color: #2ecc71; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>🌳 BIT 2D — Fenwick Tree 2D</h1>
+    <p class="subtitle">Binary Indexed Tree mở rộng cho bài toán trên ma trận</p>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="#intro">Giới thiệu</a>
+        <a href="#recall">Nhắc lại 1D</a>
+        <a href="#idea">Ý tưởng 2D</a>
+        <a href="#implement">Cài đặt</a>
+        <a href="#visual">Trực quan</a>
+        <a href="#trace">Truy vết</a>
+        <a href="#demo">Demo tương tác</a>
+        <a href="#extend">Mở rộng</a>
+        <a href="#compare">So sánh</a>
+        <a href="#summary">Tổng kết</a>
+    </nav>
+
+    <!-- ===================== SECTION 1: INTRO ===================== -->
+    <section class="section" id="intro">
+        <h2><span class="num">1</span> Giới thiệu</h2>
+        <p>
+            <span class="keyword">BIT 2D</span> (hay <span class="keyword">Fenwick Tree 2D</span>) là phiên bản mở rộng 
+            của BIT 1D sang <span class="highlight">hai chiều</span>, dùng để xử lý hiệu quả các thao tác trên <strong>ma trận</strong>:
+        </p>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <strong>Point Update</strong> — Cập nhật giá trị tại một ô <span class="code-inline">(x, y)</span>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <strong>Prefix Sum Query</strong> — Truy vấn tổng trên hình chữ nhật từ <span class="code-inline">(1,1)</span> đến <span class="code-inline">(x,y)</span>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <strong>Range Sum Query</strong> — Truy vấn tổng trên hình chữ nhật bất kỳ <span class="code-inline">(r1,c1)</span> → <span class="code-inline">(r2,c2)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box tip">
+            <span class="icon">💡</span>
+            <div>
+                Mỗi thao tác chỉ mất <span class="code-inline">O(log N × log M)</span> — nhanh hơn rất nhiều so với duyệt trâu <span class="code-inline">O(N × M)</span>.
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== SECTION 2: RECALL 1D ===================== -->
+    <section class="section" id="recall">
+        <h2><span class="num">2</span> Nhắc lại BIT 1D</h2>
+
+        <p>Trước khi hiểu 2D, hãy nắm vững 1D:</p>
+
+        <h3>Khái niệm Lowbit</h3>
+        <p>
+            <span class="code-inline">lowbit(i) = i & (-i)</span> lấy ra <strong>bit thấp nhất</strong> được bật trong biểu diễn nhị phân của <span class="code-inline">i</span>.
+        </p>
+
+        <table class="lowbit-table">
+            <tr>
+                <th>i (thập phân)</th>
+                <th>i (nhị phân)</th>
+                <th>lowbit(i)</th>
+                <th>Ý nghĩa</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>000<span class="bit-highlight">1</span></td>
+                <td>1</td>
+                <td>Quản lý 1 phần tử</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>00<span class="bit-highlight">1</span>0</td>
+                <td>2</td>
+                <td>Quản lý 2 phần tử</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>001<span class="bit-highlight">1</span></td>
+                <td>1</td>
+                <td>Quản lý 1 phần tử</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>0<span class="bit-highlight">1</span>00</td>
+                <td>4</td>
+                <td>Quản lý 4 phần tử</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>010<span class="bit-highlight">1</span></td>
+                <td>1</td>
+                <td>Quản lý 1 phần tử</td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td>01<span class="bit-highlight">1</span>0</td>
+                <td>2</td>
+                <td>Quản lý 2 phần tử</td>
+            </tr>
+        </table>
+
+        <h3>Hai thao tác cơ bản</h3>
+        <div class="code-wrapper">
+            <span class="code-label">C++ — BIT 1D</span>
+            <pre><code><span class="cm">// Cộng val vào vị trí i</span>
+<span class="kw">void</span> <span class="fn">update</span>(<span class="type">int</span> i, <span class="type">int</span> val) {
+    <span class="kw">for</span> (; i <= n; i += i & (-i))
+        bit[i] += val;
+}
+
+<span class="cm">// Tính tổng từ 1 đến i</span>
+<span class="type">int</span> <span class="fn">query</span>(<span class="type">int</span> i) {
+    <span class="type">int</span> sum = <span class="num-code">0</span>;
+    <span class="kw">for</span> (; i > <span class="num-code">0</span>; i -= i & (-i))
+        sum += bit[i];
+    <span class="kw">return</span> sum;
+}</code></pre>
+        </div>
+
+        <div class="info-box important">
+            <span class="icon">🔑</span>
+            <div>
+                <strong>Update</strong>: nhảy <em>lên</em> (cộng lowbit) → ảnh hưởng tới các nút cha.<br>
+                <strong>Query</strong>: nhảy <em>xuống</em> (trừ lowbit) → gom kết quả từ các nút con.
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== SECTION 3: IDEA ===================== -->
+    <section class="section" id="idea">
+        <h2><span class="num">3</span> Ý tưởng BIT 2D</h2>
+
+        <div class="info-box important">
+            <span class="icon">🧠</span>
+            <div>
+                <strong>BIT 2D = BIT lồng BIT</strong><br>
+                Chiều thứ nhất: BIT theo <span class="highlight">hàng</span><br>
+                Chiều thứ hai: BIT theo <span class="highlight">cột</span><br>
+                Mỗi nút BIT theo hàng chứa một BIT theo cột bên trong.
+            </div>
+        </div>
+
+        <h3>Hình dung</h3>
+        <p>Cho ma trận kích thước <span class="code-inline">N × M</span>:</p>
+
+        <div class="matrix-container">
+            <table class="matrix">
+                <tr>
+                    <td class="header"></td>
+                    <td class="header">c=1</td>
+                    <td class="header">c=2</td>
+                    <td class="header">c=3</td>
+                    <td class="header">c=4</td>
+                </tr>
+                <tr>
+                    <td class="header">r=1</td>
+                    <td class="cell">a₁₁</td>
+                    <td class="cell">a₁₂</td>
+                    <td class="cell">a₁₃</td>
+                    <td class="cell">a₁₄</td>
+                </tr>
+                <tr>
+                    <td class="header">r=2</td>
+                    <td class="cell">a₂₁</td>
+                    <td class="cell">a₂₂</td>
+                    <td class="cell">a₂₃</td>
+                    <td class="cell">a₂₄</td>
+                </tr>
+                <tr>
+                    <td class="header">r=3</td>
+                    <td class="cell">a₃₁</td>
+                    <td class="cell">a₃₂</td>
+                    <td class="cell">a₃₃</td>
+                    <td class="cell">a₃₄</td>
+                </tr>
+                <tr>
+                    <td class="header">r=4</td>
+                    <td class="cell">a₄₁</td>
+                    <td class="cell">a₄₂</td>
+                    <td class="cell">a₄₃</td>
+                    <td class="cell">a₄₄</td>
+                </tr>
+            </table>
+        </div>
+
+        <p>
+            <span class="code-inline">query(x, y)</span> = Tổng tất cả <span class="code-inline">a[i][j]</span> 
+            với <span class="code-inline">1 ≤ i ≤ x</span> và <span class="code-inline">1 ≤ j ≤ y</span>.
+        </p>
+
+        <div class="diagram">
+            <strong>Cách hoạt động:</strong><br><br>
+            update(x, y, val) {<br>
+            &nbsp;&nbsp;🔄 <span style="color:#ff6ac1">Vòng ngoài</span>: duyệt BIT theo <strong>HÀNG</strong> (i = x → N, nhảy +lowbit)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;🔄 <span style="color:#00d2ff">Vòng trong</span>: duyệt BIT theo <strong>CỘT</strong> (j = y → M, nhảy +lowbit)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;📝 bit[i][j] += val<br>
+            }
+        </div>
+    </section>
+
+    <!-- ===================== SECTION 4: IMPLEMENT ===================== -->
+    <section class="section" id="implement">
+        <h2><span class="num">4</span> Cài đặt chi tiết</h2>
+
+        <h3>4.1. Cấu trúc dữ liệu</h3>
+        <div class="code-wrapper">
+            <span class="code-label">Khai báo</span>
+            <pre><code><span class="type">int</span> bit[MAXN + <span class="num-code">1</span>][MAXM + <span class="num-code">1</span>];  <span class="cm">// khởi tạo = 0</span>
+<span class="type">int</span> N, M;                          <span class="cm">// kích thước ma trận N hàng × M cột</span></code></pre>
+        </div>
+
+        <h3>4.2. Update — Cộng val vào ô (x, y)</h3>
+        <div class="code-wrapper">
+            <span class="code-label">C++ — Update</span>
+            <pre><code><span class="kw">void</span> <span class="fn">update</span>(<span class="type">int</span> x, <span class="type">int</span> y, <span class="type">int</span> val) {
+    <span class="kw">for</span> (<span class="type">int</span> i = x; i <= N; i += i & (-i))       <span class="cm">// ← BIT theo HÀNG</span>
+        <span class="kw">for</span> (<span class="type">int</span> j = y; j <= M; j += j & (-j))   <span class="cm">// ← BIT theo CỘT</span>
+            bit[i][j] += val;
+}</code></pre>
+        </div>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    Bắt đầu từ hàng <span class="code-inline">x</span>, nhảy lên các hàng cha: <span class="code-inline">x → x + lowbit(x) → ...</span>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    Tại mỗi hàng <span class="code-inline">i</span>, bắt đầu từ cột <span class="code-inline">y</span>, nhảy sang các cột cha: <span class="code-inline">y → y + lowbit(y) → ...</span>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    Cộng <span class="code-inline">val</span> vào <span class="code-inline">bit[i][j]</span> tại mỗi ô gặp.
+                </div>
+            </div>
+        </div>
+
+        <h3>4.3. Query — Tổng prefix từ (1,1) đến (x,y)</h3>
+        <div class="code-wrapper">
+            <span class="code-label">C++ — Query</span>
+            <pre><code><span class="type">int</span> <span class="fn">query</span>(<span class="type">int</span> x, <span class="type">int</span> y) {
+    <span class="type">int</span> sum = <span class="num-code">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> i = x; i > <span class="num-code">0</span>; i -= i & (-i))       <span class="cm">// ← BIT theo HÀNG (nhảy xuống)</span>
+        <span class="kw">for</span> (<span class="type">int</span> j = y; j > <span class="num-code">0</span>; j -= j & (-j))   <span class="cm">// ← BIT theo CỘT (nhảy trái)</span>
+            sum += bit[i][j];
+    <span class="kw">return</span> sum;
+}</code></pre>
+        </div>
+
+        <h3>4.4. Range Query — Tổng hình chữ nhật (r1,c1) → (r2,c2)</h3>
+
+        <p>Dùng <span class="highlight">Nguyên lý Bao hàm - Loại trừ (Inclusion-Exclusion)</span>:</p>
+
+        <div class="ie-grid">
+            <div class="ie-box ie-plus">
+                + query(r2, c2)<br>
+                <small>Toàn bộ vùng lớn</small>
+            </div>
+            <div class="ie-box ie-minus">
+                − query(r1-1, c2)<br>
+                <small>Bỏ phần trên</small>
+            </div>
+            <div class="ie-box ie-minus">
+                − query(r2, c1-1)<br>
+                <small>Bỏ phần trái</small>
+            </div>
+            <div class="ie-box ie-plus">
+                + query(r1-1, c1-1)<br>
+                <small>Cộng lại góc bị trừ 2 lần</small>
+            </div>
+        </div>
+
+        <div class="matrix-container">
+            <table class="matrix" style="font-size: 0.75em;">
+                <tr>
+                    <td class="header"></td>
+                    <td class="header">1</td>
+                    <td class="header">...</td>
+                    <td class="header">c1-1</td>
+                    <td class="header">c1</td>
+                    <td class="header">...</td>
+                    <td class="header">c2</td>
+                </tr>
+                <tr>
+                    <td class="header">1</td>
+                    <td style="background:rgba(46,204,113,0.15)">D</td>
+                    <td style="background:rgba(46,204,113,0.15)">D</td>
+                    <td style="background:rgba(46,204,113,0.15)">D</td>
+                    <td style="background:rgba(231,76,60,0.15)">B</td>
+                    <td style="background:rgba(231,76,60,0.15)">B</td>
+                    <td style="background:rgba(231,76,60,0.15)">B</td>
+                </tr>
+                <tr>
+                    <td class="header">...</td>
+                    <td style="background:rgba(46,204,113,0.15)">D</td>
+                    <td style="background:rgba(46,204,113,0.15)">D</td>
+                    <td style="background:rgba(46,204,113,0.15)">D</td>
+                    <td style="background:rgba(231,76,60,0.15)">B</td>
+                    <td style="background:rgba(231,76,60,0.15)">B</td>
+                    <td style="background:rgba(231,76,60,0.15)">B</td>
+                </tr>
+                <tr>
+                    <td class="header">r1-1</td>
+                    <td style="background:rgba(46,204,113,0.15)">D</td>
+                    <td style="background:rgba(46,204,113,0.15)">D</td>
+                    <td style="background:rgba(46,204,113,0.15)">D</td>
+                    <td style="background:rgba(231,76,60,0.15)">B</td>
+                    <td style="background:rgba(231,76,60,0.15)">B</td>
+                    <td style="background:rgba(231,76,60,0.15)">B</td>
+                </tr>
+                <tr>
+                    <td class="header">r1</td>
+                    <td style="background:rgba(231,76,60,0.15)">C</td>
+                    <td style="background:rgba(231,76,60,0.15)">C</td>
+                    <td style="background:rgba(231,76,60,0.15)">C</td>
+                    <td class="highlight-cell">★</td>
+                    <td class="highlight-cell">★</td>
+                    <td class="highlight-cell">★</td>
+                </tr>
+                <tr>
+                    <td class="header">...</td>
+                    <td style="background:rgba(231,76,60,0.15)">C</td>
+                    <td style="background:rgba(231,76,60,0.15)">C</td>
+                    <td style="background:rgba(231,76,60,0.15)">C</td>
+                    <td class="highlight-cell">★</td>
+                    <td class="highlight-cell">★</td>
+                    <td class="highlight-cell">★</td>
+                </tr>
+                <tr>
+                    <td class="header">r2</td>
+                    <td style="background:rgba(231,76,60,0.15)">C</td>
+                    <td style="background:rgba(231,76,60,0.15)">C</td>
+                    <td style="background:rgba(231,76,60,0.15)">C</td>
+                    <td class="highlight-cell">★</td>
+                    <td class="highlight-cell">★</td>
+                    <td class="highlight-cell">★</td>
+                </tr>
+            </table>
+        </div>
+
+        <p style="text-align:center; font-size:0.85em; color:#888;">
+            <span style="color:#ff6ac1">★</span> = Vùng cần tính &nbsp;|&nbsp;
+            <span style="color:#e74c3c">B, C</span> = Bị trừ đi &nbsp;|&nbsp;
+            <span style="color:#2ecc71">D</span> = Cộng lại (trừ 2 lần)
+        </p>
+
+        <div class="code-wrapper">
+            <span class="code-label">C++ — Range Query</span>
+            <pre><code><span class="type">int</span> <span class="fn">queryRange</span>(<span class="type">int</span> r1, <span class="type">int</span> c1, <span class="type">int</span> r2, <span class="type">int</span> c2) {
+    <span class="kw">return</span> <span class="fn">query</span>(r2, c2) 
+         - <span class="fn">query</span>(r1 - <span class="num-code">1</span>, c2) 
+         - <span class="fn">query</span>(r2, c1 - <span class="num-code">1</span>) 
+         + <span class="fn">query</span>(r1 - <span class="num-code">1</span>, c1 - <span class="num-code">1</span>);
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- ===================== SECTION 5: VISUAL ===================== -->
+    <section class="section" id="visual">
+        <h2><span class="num">5</span> Minh họa trực quan</h2>
+
+        <h3>Update(2, 3, 5) trên ma trận 4×4</h3>
+        <p>Các ô BIT được cập nhật (tô hồng):</p>
+
+        <div class="matrix-container">
+            <table class="matrix" id="visual-update">
+                <tr>
+                    <td class="header">bit</td>
+                    <td class="header">j=1</td>
+                    <td class="header">j=2</td>
+                    <td class="header">j=3</td>
+                    <td class="header">j=4</td>
+                </tr>
+                <tr>
+                    <td class="header">i=1</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                </tr>
+                <tr>
+                    <td class="header">i=2</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                    <td class="highlight-cell">+5</td>
+                    <td class="highlight-cell">+5</td>
+                </tr>
+                <tr>
+                    <td class="header">i=3</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                </tr>
+                <tr>
+                    <td class="header">i=4</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                    <td class="highlight-cell">+5</td>
+                    <td class="highlight-cell">+5</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="diagram">
+            <strong>Luồng update(2, 3, 5):</strong><br><br>
+            i = <span style="color:#ff6ac1">2</span> (lowbit=2):<br>
+            &nbsp;&nbsp;j = <span style="color:#00d2ff">3</span> → bit[2][3] += 5 &nbsp;|&nbsp; j = 3+1 = <span style="color:#00d2ff">4</span> → bit[2][4] += 5 &nbsp;|&nbsp; j = 4+4 = 8 > 4 → dừng<br><br>
+            i = 2+2 = <span style="color:#ff6ac1">4</span> (lowbit=4):<br>
+            &nbsp;&nbsp;j = <span style="color:#00d2ff">3</span> → bit[4][3] += 5 &nbsp;|&nbsp; j = 3+1 = <span style="color:#00d2ff">4</span> → bit[4][4] += 5 &nbsp;|&nbsp; j = 4+4 = 8 > 4 → dừng<br><br>
+            i = 4+4 = <span style="color:#ff6ac1">8</span> > 4 → <strong>dừng</strong>
+        </div>
+
+        <h3>Query(3, 3) — Tổng từ (1,1) đến (3,3)</h3>
+
+        <div class="matrix-container">
+            <table class="matrix">
+                <tr>
+                    <td class="header">bit</td>
+                    <td class="header">j=1</td>
+                    <td class="header">j=2</td>
+                    <td class="header">j=3</td>
+                    <td class="header">j=4</td>
+                </tr>
+                <tr>
+                    <td class="header">i=1</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                </tr>
+                <tr>
+                    <td class="header">i=2</td>
+                    <td class="cell">0</td>
+                    <td class="query-cell">đọc</td>
+                    <td class="query-cell">đọc</td>
+                    <td class="cell">5</td>
+                </tr>
+                <tr>
+                    <td class="header">i=3</td>
+                    <td class="cell">0</td>
+                    <td class="query-cell">đọc</td>
+                    <td class="query-cell">đọc</td>
+                    <td class="cell">0</td>
+                </tr>
+                <tr>
+                    <td class="header">i=4</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                    <td class="cell">5</td>
+                    <td class="cell">5</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="diagram">
+            <strong>Luồng query(3, 3):</strong><br><br>
+            i = <span style="color:#ff6ac1">3</span> (lowbit=1):<br>
+            &nbsp;&nbsp;j = <span style="color:#00d2ff">3</span> → sum += bit[3][3] = 0<br>
+            &nbsp;&nbsp;j = 3-1 = <span style="color:#00d2ff">2</span> → sum += bit[3][2] = 0<br>
+            &nbsp;&nbsp;j = 2-2 = 0 → dừng cột<br><br>
+            i = 3-1 = <span style="color:#ff6ac1">2</span> (lowbit=2):<br>
+            &nbsp;&nbsp;j = <span style="color:#00d2ff">3</span> → sum += bit[2][3] = <span style="color:#2ecc71">5</span><br>
+            &nbsp;&nbsp;j = 3-1 = <span style="color:#00d2ff">2</span> → sum += bit[2][2] = 0<br>
+            &nbsp;&nbsp;j = 2-2 = 0 → dừng cột<br><br>
+            i = 2-2 = 0 → <strong>dừng</strong><br><br>
+            <span style="color:#2ecc71; font-size:1.2em">✓ Kết quả: sum = 5</span>
+        </div>
+    </section>
+
+    <!-- ===================== SECTION 6: TRACE ===================== -->
+    <section class="section" id="trace">
+        <h2><span class="num">6</span> Truy vết hoàn chỉnh</h2>
+
+        <p>Giả sử ma trận 4×4, toàn 0. Thực hiện tuần tự:</p>
+
+        <h3>Bước 1: update(2, 3, 5)</h3>
+        <div style="padding-left: 10px;">
+            <div class="trace-row trace-highlight">📝 bit[2][3] += 5 → bit[2][3] = 5</div>
+            <div class="trace-row trace-highlight">📝 bit[2][4] += 5 → bit[2][4] = 5</div>
+            <div class="trace-row trace-highlight">📝 bit[4][3] += 5 → bit[4][3] = 5</div>
+            <div class="trace-row trace-highlight">📝 bit[4][4] += 5 → bit[4][4] = 5</div>
+        </div>
+
+        <h3>Bước 2: update(3, 1, 7)</h3>
+        <div style="padding-left: 10px;">
+            <div class="trace-row trace-highlight">📝 bit[3][1] += 7 → bit[3][1] = 7</div>
+            <div class="trace-row trace-highlight">📝 bit[3][2] += 7 → bit[3][2] = 7</div>
+            <div class="trace-row trace-highlight">📝 bit[3][4] += 7 → bit[3][4] = 7</div>
+            <div class="trace-row trace-highlight">📝 bit[4][1] += 7 → bit[4][1] = 7</div>
+            <div class="trace-row trace-highlight">📝 bit[4][2] += 7 → bit[4][2] = 7</div>
+            <div class="trace-row trace-highlight">📝 bit[4][4] += 7 → bit[4][4] = 12</div>
+        </div>
+
+        <h3>Trạng thái mảng BIT hiện tại:</h3>
+        <div class="matrix-container">
+            <table class="matrix">
+                <tr>
+                    <td class="header">bit</td>
+                    <td class="header">j=1</td>
+                    <td class="header">j=2</td>
+                    <td class="header">j=3</td>
+                    <td class="header">j=4</td>
+                </tr>
+                <tr>
+                    <td class="header">i=1</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                </tr>
+                <tr>
+                    <td class="header">i=2</td>
+                    <td class="cell">0</td>
+                    <td class="cell">0</td>
+                    <td class="highlight-cell">5</td>
+                    <td class="highlight-cell">5</td>
+                </tr>
+                <tr>
+                    <td class="header">i=3</td>
+                    <td class="highlight-cell">7</td>
+                    <td class="highlight-cell">7</td>
+                    <td class="cell">0</td>
+                    <td class="highlight-cell">7</td>
+                </tr>
+                <tr>
+                    <td class="header">i=4</td>
+                    <td class="highlight-cell">7</td>
+                    <td class="highlight-cell">7</td>
+                    <td class="highlight-cell">5</td>
+                    <td class="highlight-cell">12</td>
+                </tr>
+            </table>
+        </div>
+
+        <h3>Bước 3: queryRange(1, 1, 3, 3)</h3>
+        <div class="diagram">
+            queryRange(1,1,3,3) = query(3,3) − query(0,3) − query(3,0) + query(0,0)<br><br>
+            
+            <span style="color:#00d2ff">query(3,3)</span>:<br>
+            &nbsp;&nbsp;i=3: bit[3][3]=0, bit[3][2]=7 → cộng 7<br>
+            &nbsp;&nbsp;i=2: bit[2][3]=5, bit[2][2]=0 → cộng 5<br>
+            &nbsp;&nbsp;→ <strong>query(3,3) = 12</strong><br><br>
+            
+            <span style="color:#e74c3c">query(0,3) = 0</span> (x=0 → vòng for không chạy)<br>
+            <span style="color:#e74c3c">query(3,0) = 0</span> (y=0 → vòng for không chạy)<br>
+            <span style="color:#2ecc71">query(0,0) = 0</span><br><br>
+            
+            <span style="color:#2ecc71; font-size:1.3em">✅ Kết quả = 12 − 0 − 0 + 0 = <strong>12</strong></span><br>
+            <span style="color:#888">(Đúng! Vì a[2][3]=5 và a[3][1]=7, tổng vùng (1,1)→(3,3) = 5+7 = 12)</span>
+        </div>
+    </section>
+
+    <!-- ===================== SECTION 7: INTERACTIVE DEMO ===================== -->
+    <section class="section" id="demo">
+        <h2><span class="num">7</span> Demo tương tác</h2>
+        <p>Thử nghiệm BIT 2D trên ma trận <strong>5×5</strong>:</p>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('update-tab')">🔄 Update</button>
+            <button class="tab-btn" onclick="switchTab('query-tab')">🔍 Range Query</button>
+            <button class="tab-btn" onclick="switchTab('reset-tab')">🗑️ Reset</button>
+        </div>
+
+        <div id="update-tab" class="tab-content active" style="background:#0d0d1a; padding:15px; border:1px solid #2a2a4a; border-top:none; border-radius: 0 0 12px 12px;">
+            <div class="demo-controls">
+                <label>Hàng:</label> <input type="number" id="upd-r" value="2" min="1" max="5">
+                <label>Cột:</label> <input type="number" id="upd-c" value="3" min="1" max="5">
+                <label>Giá trị:</label> <input type="number" id="upd-v" value="5">
+                <button onclick="doUpdate()">Cập nhật</button>
+            </div>
+        </div>
+
+        <div id="query-tab" class="tab-content" style="background:#0d0d1a; padding:15px; border:1px solid #2a2a4a; border-top:none; border-radius: 0 0 12px 12px;">
+            <div class="demo-controls">
+                <label>Từ (r1,c1):</label>
+                <input type="number" id="qr1" value="1" min="1" max="5">
+                <input type="number" id="qc1" value="1" min="1" max="5">
+                <label>Đến (r2,c2):</label>
+                <input type="number" id="qr2" value="3" min="1" max="5">
+                <input type="number" id="qc2" value="3" min="1" max="5">
+                <button onclick="doQuery()">Truy vấn</button>
+            </div>
+        </div>
+
+        <div id="reset-tab" class="tab-content" style="background:#0d0d1a; padding:15px; border:1px solid #2a2a4a; border-top:none; border-radius: 0 0 12px 12px;">
+            <div class="demo-controls">
+                <button onclick="doReset()">Xóa toàn bộ ma trận</button>
+            </div>
+        </div>
+
+        <h3 style="margin-top:20px;">Ma trận gốc (giá trị thực):</h3>
+        <div class="matrix-container">
+            <table class="matrix" id="demo-real-matrix"></table>
+        </div>
+
+        <h3>Mảng BIT nội bộ:</h3>
+        <div class="matrix-container">
+            <table class="matrix" id="demo-matrix"></table>
+        </div>
+
+        <h3>Log:</h3>
+        <div id="demo-log"></div>
+    </section>
+
+    <!-- ===================== SECTION 8: EXTEND ===================== -->
+    <section class="section" id="extend">
+        <h2><span class="num">8</span> Mở rộng</h2>
+
+        <h3>8.1. Update trên hình chữ nhật + Query tại điểm</h3>
+        <p>
+            Nếu cần <span class="highlight">cộng val vào toàn bộ hình chữ nhật</span> (r1,c1)→(r2,c2) và <span class="highlight">truy vấn giá trị tại một điểm</span>,
+            ta dùng kỹ thuật <span class="keyword">mảng hiệu (difference array)</span> 2D kết hợp BIT 2D:
+        </p>
+
+        <div class="code-wrapper">
+            <span class="code-label">C++ — Range Update + Point Query</span>
+            <pre><code><span class="cm">// Cộng val vào mọi ô trong HCN (r1,c1) → (r2,c2)</span>
+<span class="kw">void</span> <span class="fn">rangeUpdate</span>(<span class="type">int</span> r1, <span class="type">int</span> c1, <span class="type">int</span> r2, <span class="type">int</span> c2, <span class="type">int</span> val) {
+    <span class="fn">update</span>(r1,       c1,       <span class="op">+</span>val);
+    <span class="fn">update</span>(r1,       c2 + <span class="num-code">1</span>,  <span class="op">-</span>val);
+    <span class="fn">update</span>(r2 + <span class="num-code">1</span>,  c1,       <span class="op">-</span>val);
+    <span class="fn">update</span>(r2 + <span class="num-code">1</span>,  c2 + <span class="num-code">1</span>,  <span class="op">+</span>val);
+}
+
+<span class="cm">// Truy vấn giá trị tại điểm (x, y)</span>
+<span class="type">int</span> <span class="fn">pointQuery</span>(<span class="type">int</span> x, <span class="type">int</span> y) {
+    <span class="kw">return</span> <span class="fn">query</span>(x, y);   <span class="cm">// query prefix sum = giá trị thực tại (x,y)</span>
+}</code></pre>
+        </div>
+
+        <div class="info-box warning">
+            <span class="icon">⚠️</span>
+            <div>
+                <strong>Lưu ý</strong>: Kỹ thuật này dùng BIT để lưu <em>mảng hiệu 2D</em>, không phải giá trị gốc. 
+                Do đó <code>query(x,y)</code> cho ra giá trị thực tại ô (x,y), KHÔNG phải tổng prefix.
+            </div>
+        </div>
+
+        <h3>8.2. Range Update + Range Query</h3>
+        <p>
+            Đây là bài toán khó hơn: vừa <strong>cập nhật hình chữ nhật</strong>, vừa <strong>truy vấn tổng hình chữ nhật</strong>. 
+            Cần dùng <strong>4 BIT 2D</strong> song song (hoặc Segment Tree 2D có Lazy).
+        </p>
+
+        <div class="code-wrapper">
+            <span class="code-label">C++ — Range Update + Range Query (4 BIT)</span>
+            <pre><code><span class="type">long long</span> B[<span class="num-code">4</span>][MAXN][MAXM]; <span class="cm">// 4 mảng BIT 2D</span>
+
+<span class="kw">void</span> <span class="fn">update_bit</span>(<span class="type">int</span> k, <span class="type">int</span> x, <span class="type">int</span> y, <span class="type">long long</span> val) {
+    <span class="kw">for</span> (<span class="type">int</span> i = x; i <= N; i += i & (-i))
+        <span class="kw">for</span> (<span class="type">int</span> j = y; j <= M; j += j & (-j))
+            B[k][i][j] += val;
+}
+
+<span class="type">long long</span> <span class="fn">query_bit</span>(<span class="type">int</span> k, <span class="type">int</span> x, <span class="type">int</span> y) {
+    <span class="type">long long</span> s = <span class="num-code">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> i = x; i > <span class="num-code">0</span>; i -= i & (-i))
+        <span class="kw">for</span> (<span class="type">int</span> j = y; j > <span class="num-code">0</span>; j -= j & (-j))
+            s += B[k][i][j];
+    <span class="kw">return</span> s;
+}
+
+<span class="kw">void</span> <span class="fn">rangeAdd</span>(<span class="type">int</span> x, <span class="type">int</span> y, <span class="type">long long</span> val) {
+    <span class="fn">update_bit</span>(<span class="num-code">0</span>, x, y, val);
+    <span class="fn">update_bit</span>(<span class="num-code">1</span>, x, y, val * x);
+    <span class="fn">update_bit</span>(<span class="num-code">2</span>, x, y, val * y);
+    <span class="fn">update_bit</span>(<span class="num-code">3</span>, x, y, val * x * y);
+}
+
+<span class="type">long long</span> <span class="fn">prefixSum</span>(<span class="type">int</span> x, <span class="type">int</span> y) {
+    <span class="kw">return</span> (x+<span class="num-code">1</span>)*(y+<span class="num-code">1</span>)*<span class="fn">query_bit</span>(<span class="num-code">0</span>,x,y) 
+         - (y+<span class="num-code">1</span>)*<span class="fn">query_bit</span>(<span class="num-code">1</span>,x,y) 
+         - (x+<span class="num-code">1</span>)*<span class="fn">query_bit</span>(<span class="num-code">2</span>,x,y) 
+         + <span class="fn">query_bit</span>(<span class="num-code">3</span>,x,y);
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- ===================== SECTION 9: COMPARE ===================== -->
+    <section class="section" id="compare">
+        <h2><span class="num">9</span> So sánh các phương pháp</h2>
+
+        <table class="comp-table">
+            <tr>
+                <th>Tiêu chí</th>
+                <th>BIT 2D</th>
+                <th>Segment Tree 2D</th>
+                <th>Prefix Sum 2D</th>
+            </tr>
+            <tr>
+                <td><strong>Cài đặt</strong></td>
+                <td><span class="badge good">Rất ngắn gọn</span></td>
+                <td><span class="badge mid">Rất phức tạp</span></td>
+                <td><span class="badge good">Đơn giản</span></td>
+            </tr>
+            <tr>
+                <td><strong>Bộ nhớ</strong></td>
+                <td>O(N × M)</td>
+                <td>O(16 × N × M)</td>
+                <td>O(N × M)</td>
+            </tr>
+            <tr>
+                <td><strong>Update</strong></td>
+                <td><span class="badge good">O(logN × logM)</span></td>
+                <td><span class="badge good">O(logN × logM)</span></td>
+                <td><span class="badge mid">O(N × M) rebuild</span></td>
+            </tr>
+            <tr>
+                <td><strong>Query</strong></td>
+                <td><span class="badge good">O(logN × logM)</span></td>
+                <td><span class="badge good">O(logN × logM)</span></td>
+                <td><span class="badge good">O(1)</span></td>
+            </tr>
+            <tr>
+                <td><strong>Range Update + Lazy</strong></td>
+                <td>Khó (cần 4 BIT)</td>
+                <td>Có thể</td>
+                <td>Không</td>
+            </tr>
+            <tr>
+                <td><strong>Khi nào dùng?</strong></td>
+                <td>Có update lẻ</td>
+                <td>Cần lazy phức tạp</td>
+                <td>Không update / tĩnh</td>
+            </tr>
+        </table>
+
+        <div class="info-box tip">
+            <span class="icon">🏆</span>
+            <div>
+                <strong>Khuyến nghị</strong>: Trong đa số bài competitive programming, 
+                <span class="keyword">BIT 2D</span> là lựa chọn tối ưu nhờ code ngắn, ít bug, và đủ nhanh.
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== SECTION 10: FULL CODE ===================== -->
+    <section class="section" id="fullcode">
+        <h2><span class="num">10</span> Code hoàn chỉnh</h2>
+
+        <div class="code-wrapper">
+            <span class="code-label">C++ — Complete Solution</span>
+            <pre><code><span class="kw">#include</span> <span class="str">&lt;bits/stdc++.h&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="kw">const</span> <span class="type">int</span> MAXN = <span class="num-code">1005</span>;
+<span class="kw">const</span> <span class="type">int</span> MAXM = <span class="num-code">1005</span>;
+
+<span class="type">int</span> bit[MAXN][MAXM];
+<span class="type">int</span> N, M;
+
+<span class="kw">void</span> <span class="fn">update</span>(<span class="type">int</span> x, <span class="type">int</span> y, <span class="type">int</span> val) {
+    <span class="kw">for</span> (<span class="type">int</span> i = x; i <= N; i += i & (-i))
+        <span class="kw">for</span> (<span class="type">int</span> j = y; j <= M; j += j & (-j))
+            bit[i][j] += val;
+}
+
+<span class="type">int</span> <span class="fn">query</span>(<span class="type">int</span> x, <span class="type">int</span> y) {
+    <span class="type">int</span> sum = <span class="num-code">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> i = x; i > <span class="num-code">0</span>; i -= i & (-i))
+        <span class="kw">for</span> (<span class="type">int</span> j = y; j > <span class="num-code">0</span>; j -= j & (-j))
+            sum += bit[i][j];
+    <span class="kw">return</span> sum;
+}
+
+<span class="type">int</span> <span class="fn">queryRange</span>(<span class="type">int</span> r1, <span class="type">int</span> c1, <span class="type">int</span> r2, <span class="type">int</span> c2) {
+    <span class="kw">return</span> <span class="fn">query</span>(r2, c2) 
+         - <span class="fn">query</span>(r1 - <span class="num-code">1</span>, c2) 
+         - <span class="fn">query</span>(r2, c1 - <span class="num-code">1</span>) 
+         + <span class="fn">query</span>(r1 - <span class="num-code">1</span>, c1 - <span class="num-code">1</span>);
+}
+
+<span class="type">int</span> <span class="fn">main</span>() {
+    ios::sync_with_stdio(<span class="kw">false</span>);
+    cin.tie(<span class="kw">nullptr</span>);
+    
+    <span class="type">int</span> Q;
+    cin >> N >> M >> Q;
+    
+    <span class="kw">while</span> (Q--) {
+        <span class="type">int</span> type;
+        cin >> type;
+        <span class="kw">if</span> (type == <span class="num-code">1</span>) {
+            <span class="type">int</span> x, y, val;
+            cin >> x >> y >> val;
+            <span class="fn">update</span>(x, y, val);
+        } <span class="kw">else</span> {
+            <span class="type">int</span> r1, c1, r2, c2;
+            cin >> r1 >> c1 >> r2 >> c2;
+            cout << <span class="fn">queryRange</span>(r1, c1, r2, c2) << <span class="str">"\n"</span>;
+        }
+    }
+    <span class="kw">return</span> <span class="num-code">0</span>;
+}</code></pre>
+        </div>
+    </section>
+
+    <!-- ===================== SECTION 11: SUMMARY ===================== -->
+    <section class="section" id="summary">
+        <h2><span class="num">11</span> Tổng kết</h2>
+
+        <div class="summary-box">
+            <h3 style="color:#ff6ac1;">📋 Cheat Sheet — BIT 2D</h3>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="label">Update</div>
+                    <div class="value">O(log N × log M)</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">Query</div>
+                    <div class="value">O(log N × log M)</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">Bộ nhớ</div>
+                    <div class="value">O(N × M)</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">Dòng code</div>
+                    <div class="value">~15 dòng</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="diagram" style="text-align: left; padding: 25px;">
+            <strong style="color:#ff6ac1;">🔑 Ghi nhớ cốt lõi:</strong><br><br>
+            <span style="color:#00d2ff;">1.</span> BIT 2D = <strong>Lồng 2 vòng lặp BIT 1D</strong><br><br>
+            <span style="color:#00d2ff;">2.</span> <strong>Update(x,y,v)</strong>: vòng ngoài (hàng ↑ lên), vòng trong (cột → phải)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#888;">for i: x→N (+lowbit) | for j: y→M (+lowbit)</span><br><br>
+            <span style="color:#00d2ff;">3.</span> <strong>Query(x,y)</strong>: vòng ngoài (hàng ↓ xuống), vòng trong (cột ← trái)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#888;">for i: x→0 (−lowbit) | for j: y→0 (−lowbit)</span><br><br>
+            <span style="color:#00d2ff;">4.</span> <strong>Tổng HCN</strong> = Inclusion-Exclusion trên 4 lần gọi query<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#2ecc71;">+Q(r2,c2)</span> <span style="color:#e74c3c;">−Q(r1-1,c2)</span> <span style="color:#e74c3c;">−Q(r2,c1-1)</span> <span style="color:#2ecc71;">+Q(r1-1,c1-1)</span>
+        </div>
+
+        <div class="info-box tip">
+            <span class="icon">🎯</span>
+            <div>
+                <strong>Mẹo thi:</strong> BIT 2D code rất ngắn, ít sai. Khi gặp bài toán trên ma trận có update điểm + query tổng hình chữ nhật, 
+                hãy nghĩ ngay đến BIT 2D trước khi xài Segment Tree 2D nặng nề hơn.
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    // =============== INTERACTIVE DEMO ===============
+    const SZ = 5;
+    let realMatrix = Array.from({length: SZ+1}, () => new Array(SZ+1).fill(0));
+    let bitArr = Array.from({length: SZ+1}, () => new Array(SZ+1).fill(0));
+
+    function lowbit(x) { return x & (-x); }
+
+    function bitUpdate(x, y, val) {
+        let cells = [];
+        for (let i = x; i <= SZ; i += lowbit(i))
+            for (let j = y; j <= SZ; j += lowbit(j)) {
+                bitArr[i][j] += val;
+                cells.push([i, j]);
+            }
+        return cells;
+    }
+
+    function bitQuery(x, y) {
+        let sum = 0;
+        for (let i = x; i > 0; i -= lowbit(i))
+            for (let j = y; j > 0; j -= lowbit(j))
+                sum += bitArr[i][j];
+        return sum;
+    }
+
+    function renderMatrices() {
+        // Real matrix
+        let html = '<tr><td class="header">real</td>';
+        for (let j = 1; j <= SZ; j++) html += `<td class="header">c=${j}</td>`;
+        html += '</tr>';
+        for (let i = 1; i <= SZ; i++) {
+            html += `<td class="header">r=${i}</td>`;
+            for (let j = 1; j <= SZ; j++) {
+                let v = realMatrix[i][j];
+                let cls = v !== 0 ? 'highlight-cell' : 'cell';
+                html += `<td class="${cls}">${v}</td>`;
+            }
+            html += '</tr>';
+        }
+        document.getElementById('demo-real-matrix').innerHTML = html;
+
+        // BIT array
+        html = '<tr><td class="header">bit</td>';
+        for (let j = 1; j <= SZ; j++) html += `<td class="header">j=${j}</td>`;
+        html += '</tr>';
+        for (let i = 1; i <= SZ; i++) {
+            html += `<td class="header">i=${i}</td>`;
+            for (let j = 1; j <= SZ; j++) {
+                let v = bitArr[i][j];
+                let cls = v !== 0 ? 'highlight-cell' : 'cell';
+                html += `<td class="${cls}" id="bit-${i}-${j}">${v}</td>`;
+            }
+            html += '</tr>';
+        }
+        document.getElementById('demo-matrix').innerHTML = html;
+    }
+
+    function addLog(msg, cls) {
+        const log = document.getElementById('demo-log');
+        log.innerHTML += `<div class="log-entry ${cls}">${msg}</div>`;
+        log.scrollTop = log.scrollHeight;
+    }
+
+    function doUpdate() {
+        let r = parseInt(document.getElementById('upd-r').value);
+        let c = parseInt(document.getElementById('upd-c').value);
+        let v = parseInt(document.getElementById('upd-v').value);
+        if (r < 1 || r > SZ || c < 1 || c > SZ || isNaN(v)) {
+            addLog('❌ Input không hợp lệ!', 'log-update');
+            return;
+        }
+        realMatrix[r][c] += v;
+        let cells = bitUpdate(r, c, v);
+        addLog(`🔄 update(${r}, ${c}, ${v})`, 'log-update');
+        cells.forEach(([i,j]) => {
+            addLog(`&nbsp;&nbsp;📝 bit[${i}][${j}] = ${bitArr[i][j]}`, 'log-update');
+        });
+        renderMatrices();
+        // Flash effect
+        cells.forEach(([i,j]) => {
+            let cell = document.getElementById(`bit-${i}-${j}`);
+            if (cell) {
+                cell.classList.add('flash');
+                setTimeout(() => cell.classList.remove('flash'), 800);
+            }
+        });
+    }
+
+    function doQuery() {
+        let r1 = parseInt(document.getElementById('qr1').value);
+        let c1 = parseInt(document.getElementById('qc1').value);
+        let r2 = parseInt(document.getElementById('qr2').value);
+        let c2 = parseInt(document.getElementById('qc2').value);
+        if (r1 < 1 || r2 > SZ || c1 < 1 || c2 > SZ || r1 > r2 || c1 > c2) {
+            addLog('❌ Input không hợp lệ!', 'log-query');
+            return;
+        }
+        let a = bitQuery(r2, c2);
+        let b = bitQuery(r1-1, c2);
+        let c_val = bitQuery(r2, c1-1);
+        let d = bitQuery(r1-1, c1-1);
+        let result = a - b - c_val + d;
+        addLog(`🔍 queryRange(${r1},${c1},${r2},${c2})`, 'log-query');
+        addLog(`&nbsp;&nbsp;= query(${r2},${c2}) - query(${r1-1},${c2}) - query(${r2},${c1-1}) + query(${r1-1},${c1-1})`, 'log-query');
+        addLog(`&nbsp;&nbsp;= ${a} - ${b} - ${c_val} + ${d}`, 'log-query');
+        addLog(`&nbsp;&nbsp;✅ Kết quả: <strong>${result}</strong>`, 'log-result');
+    }
+
+    function doReset() {
+        realMatrix = Array.from({length: SZ+1}, () => new Array(SZ+1).fill(0));
+        bitArr = Array.from({length: SZ+1}, () => new Array(SZ+1).fill(0));
+        document.getElementById('demo-log').innerHTML = '';
+        addLog('🗑️ Đã reset ma trận!', 'log-update');
+        renderMatrices();
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // Init
+    renderMatrices();
+    addLog('🎬 Sẵn sàng! Hãy thử update và query.', 'log-query');
+</script>
+
+</body>
+</html>
